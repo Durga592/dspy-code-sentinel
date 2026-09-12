@@ -26,13 +26,19 @@ class CodeSentinelPipeline(dspy.Module):
         self.patcher = dspy.ChainOfThought(PatchSignature)
 
     def forward(self, code: str):
-        # Run audit stage
+        # Execute security audit stage
         audit_res = self.auditor(code=code)
         
-        # Safely extract rationale (fallback if rationale attribute is missing)
-        rationale_text = getattr(audit_res, 'rationale', 'Step-by-step reasoning completed successfully.')
-        
-        # Run patch stage
+        # Robust rationale extraction across DSPy version schemas
+        rationale_text = getattr(audit_res, 'rationale', None)
+        if not rationale_text:
+            rationale_text = getattr(audit_res, 'reasoning', None)
+        if not rationale_text and hasattr(audit_res, 'completions'):
+            rationale_text = getattr(audit_res.completions, 'rationale', [None])[0]
+        if not rationale_text:
+            rationale_text = "Chain-of-Thought analysis executed successfully."
+
+        # Execute code refactoring stage
         patch_res = self.patcher(code=code, vulnerability=audit_res.vulnerability)
         
         return dspy.Prediction(
@@ -44,12 +50,13 @@ class CodeSentinelPipeline(dspy.Module):
 
 
 def init_dspy(api_key: str, model_name: str = "openai/gpt-4o-mini"):
-    """Configure DSPy with OpenRouter provider routing."""
+    """Configure DSPy LM client targeting OpenRouter endpoints."""
     
-    # Ensure openrouter/ provider prefix for litellm compatibility
-    formatted_model = model_name
-    if not formatted_model.startswith("openrouter/"):
+    # Enforce openrouter/ prefix for LiteLLM provider resolution
+    if not model_name.startswith("openrouter/"):
         formatted_model = f"openrouter/{model_name}"
+    else:
+        formatted_model = model_name
 
     lm = dspy.LM(
         model=formatted_model,

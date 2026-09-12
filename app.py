@@ -1,65 +1,58 @@
 import os
+import streamlit as st
 import dspy
+from engine import CodeSentinelPipeline, init_dspy
 
-# 1. Define DSPy Signatures
-class AuditSignature(dspy.Signature):
-    """Analyze source code for security flaws, CWE classifications, and risk levels."""
-    
-    code: str = dspy.InputField(desc="Python code snippet to audit")
-    vulnerability: str = dspy.OutputField(desc="Primary vulnerability identified with CWE classification")
-    risk_level: str = dspy.OutputField(desc="CRITICAL, HIGH, MEDIUM, or LOW risk level")
+st.set_page_config(page_title="DSPy Code Sentinel", page_icon="🛡️", layout="wide")
 
+st.title("🛡️ DSPy Code Sentinel")
+st.subheader("Production-Grade Declarative Code Security Auditor & Auto-Patcher")
 
-class PatchSignature(dspy.Signature):
-    """Generate secure refactored python code addressing identified vulnerabilities."""
-    
-    code: str = dspy.InputField(desc="Original insecure code")
-    vulnerability: str = dspy.InputField(desc="Detected security flaw to remediate")
-    patched_code: str = dspy.OutputField(desc="Refactored, production-ready secure code")
-
-
-# 2. Resilient Sentinel Pipeline Module
-class CodeSentinelPipeline(dspy.Module):
-    def __init__(self):
-        super().__init__()
-        self.auditor = dspy.ChainOfThought(AuditSignature)
-        self.patcher = dspy.ChainOfThought(PatchSignature)
-
-    def forward(self, code: str):
-        # Run audit stage
-        audit_res = self.auditor(code=code)
-        
-        # Safely extract rationale (fallback if rationale attribute is missing)
-        rationale_text = getattr(audit_res, 'rationale', None)
-        if not rationale_text:
-            # Fallback check for alternative dspy response keys
-            rationale_text = getattr(audit_res, 'reasoning', 'Chain-of-Thought analysis completed successfully.')
-        
-        # Run patch stage
-        patch_res = self.patcher(code=code, vulnerability=audit_res.vulnerability)
-        
-        return dspy.Prediction(
-            vulnerability=audit_res.vulnerability,
-            risk_level=audit_res.risk_level,
-            rationale=rationale_text,
-            patched_code=patch_res.patched_code
-        )
-
-
-def init_dspy(api_key: str, model_name: str = "openai/gpt-4o-mini"):
-    """Configure DSPy with OpenRouter provider routing."""
-    
-    # Prepend openrouter/ provider prefix for litellm routing compatibility
-    if not model_name.startswith("openrouter/"):
-        formatted_model = f"openrouter/{model_name}"
-    else:
-        formatted_model = model_name
-
-    lm = dspy.LM(
-        model=formatted_model,
-        api_base="https://openrouter.ai/api/v1",
-        api_key=api_key,
-        temperature=0.1
+with st.sidebar:
+    st.header("Configuration")
+    api_key = st.text_input("OpenRouter API Key", type="password")
+    selected_model = st.selectbox(
+        "Target Model",
+        ["openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet", "meta-llama/llama-3.3-70b-instruct"]
     )
-    dspy.configure(lm=lm)
-    return lm
+    st.markdown("---")
+    st.markdown("### Framework Architecture")
+    st.info("Built with **DSPy Signatures**, **ChainOfThought Modules**, and **MIPROv2 Prompt Optimizers**.")
+
+code_input = st.text_area(
+    "Paste Code Snippet to Audit:",
+    height=200,
+    value="import os\ndef run_cmd(user_input):\n    os.system('ls ' + user_input)"
+)
+
+if st.button("Run Security Audit & Auto-Patch", type="primary"):
+    if not api_key:
+        st.error("Please enter an OpenRouter API Key in the sidebar.")
+    else:
+        try:
+            with st.spinner("Initializing DSPy Engine and processing target code..."):
+                init_dspy(api_key=api_key, model_name=selected_model)
+                pipeline = CodeSentinelPipeline()
+                
+                # Load compiled weights/prompts if compiled artifact exists
+                if os.path.exists("compiled_sentinel.json"):
+                    pipeline.load("compiled_sentinel.json")
+                
+                result = pipeline(code=code_input)
+
+            st.success("Analysis Complete!")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("### 🔍 Security Findings")
+                st.metric("Risk Severity", result.risk_level)
+                st.write(f"**Identified Flaw:** {result.vulnerability}")
+                st.markdown("**Reasoning Steps:**")
+                st.info(result.rationale)
+
+            with col2:
+                st.markdown("### 🛠️ Refactored Patch")
+                st.code(result.patched_code, language="python")
+
+        except Exception as e:
+            st.error(f"Error executing pipeline: {str(e)}")
