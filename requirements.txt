@@ -1,0 +1,6 @@
+dspy
+streamlit
+pydantic
+openai
+requests
+python-dotenv
