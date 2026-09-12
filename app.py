@@ -13,7 +13,7 @@ with st.sidebar:
     api_key = st.text_input("OpenRouter API Key", type="password")
     selected_model = st.selectbox(
         "Target Model",
-        ["openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet", "meta-llama/llama-3.3-70b-instruct"]
+        ["openai/gpt-4o-mini", "anthropic/claude-sonnet-5", "meta-llama/llama-3.3-70b-instruct", "gpt-6-astra"]
     )
     st.markdown("---")
     st.markdown("### Framework Architecture")
