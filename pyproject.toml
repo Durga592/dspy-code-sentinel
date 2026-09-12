@@ -1,0 +1,23 @@
+[project]
+name = "dspy-code-sentinel"
+version = "0.1.0"
+description = "Declarative Code Security Auditor & Auto-Patcher using DSPy and MIPROv2"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dspy>=2.5.0",
+    "streamlit>=1.35.0",
+    "pydantic>=2.7.0",
+    "openai>=1.30.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+]

@@ -1,3 +1,17 @@
+---
+Title: DSPy Code Sentinel
+emoji: 🛡️
+colorFrom: blue
+colorTo: indigo
+sdk: streamlit
+sdk_version: 1.35.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
+---
+
 # 🛡️ DSPy Code Sentinel: Self-Optimizing Security Auditor
 
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-blue)](https://huggingface.co/spaces/YOUR_USERNAME/dspy-code-sentinel)
