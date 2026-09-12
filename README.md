@@ -12,6 +12,10 @@ license: mit
 
 ---
 
+![alt text](image.png)
+
+---
+
 # 🛡️ DSPy Code Sentinel: Self-Optimizing Security Auditor
 
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-blue)](https://huggingface.co/spaces/YOUR_USERNAME/dspy-code-sentinel)
