@@ -10,12 +10,6 @@ pinned: false
 license: mit
 ---
 
----
-
-![alt text](image.png)
-
----
-
 # 🛡️ DSPy Code Sentinel: Self-Optimizing Security Auditor
 
 [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-blue)](https://huggingface.co/spaces/YOUR_USERNAME/dspy-code-sentinel)
@@ -25,6 +19,8 @@ license: mit
 DSPy Code Sentinel is an enterprise-grade, declarative AI pipeline designed to audit Python code for security vulnerabilities (CWE classifications) and automatically apply secure refactoring patches.
 
 Unlike brittle legacy LLM wrappers that rely on manual string prompting, this system uses Stanford's **DSPy framework** to treat prompts as compiled, data-driven programs.
+
+![alt text](image.png)
 
 ---
 
